@@ -1,7 +1,8 @@
 const express = require("express");
-const { addData } = require("../controller/userController");
+const user = require("../controller/userController");
 const router = express.Router();
 
-router.get("/addData", addData);
+router.get("/addData", user.addData);
+router.get("/districts", user.getDistrictData);
 
 module.exports = router;
