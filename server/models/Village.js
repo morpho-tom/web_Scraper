@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
-  const Block = sequelize.define("Block", {
+  const Village = sequelize.define("Village", {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -18,24 +18,27 @@ module.exports = (sequelize, DataTypes) => {
         key: "value",
       },
     },
+    Block_code: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      references: {
+        model: "Blocks",
+        key: "value",
+      },
+    },
     name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
   });
 
-  Block.associate = (models) => {
-    Block.belongsTo(models.District, {
-      foreignKey: "District_code",
-      targetKey: "value",
-      as: "District",
-    });
-    Block.hasMany(models.Village, {
+  Village.associate = (models) => {
+    Village.belongsTo(models.Block, {
       foreignKey: "Block_code",
-      sourceKey: "value",
-      as: "Villages",
+      targetKey: "value",
+      as: "Block",
     });
   };
 
-  return Block;
+  return Village;
 };

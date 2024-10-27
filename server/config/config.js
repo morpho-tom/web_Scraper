@@ -5,5 +5,8 @@ module.exports = {
     database: "web_scrapper",
     host: "localhost",
     dialect: "postgres",
+    dialectOptions: {
+      charset: "utf8",
+    },
   },
 };

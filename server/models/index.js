@@ -44,4 +44,14 @@ Object.keys(db).forEach((modelName) => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+// Sync the models with the database
+db.sequelize
+  .sync({ alter: true }) // Change to { force: true } to drop and recreate tables
+  .then(() => {
+    console.log("Database synced successfully.");
+  })
+  .catch((error) => {
+    console.error("Error syncing database:", error);
+  });
+
 module.exports = db;

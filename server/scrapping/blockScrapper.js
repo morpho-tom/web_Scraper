@@ -1,7 +1,7 @@
 const puppeteer = require("puppeteer");
-const db = require("../models"); // Import all models
-const District = db.District; // Get the District model
-const Block = db.Block; // Get the Block model
+const db = require("../models");
+const District = db.District;
+const Block = db.Block;
 
 const url = "http://tnagriculture.in/mannvalam/soils/en";
 
@@ -16,13 +16,14 @@ const main = async () => {
 
   // Step 2: Iterate through each district
   for (const district of districts) {
+    console.log(`Processing district: ${district.name}`);
     // Select the district in the dropdown
     await page.select('select[name="district"]', district.value);
 
     // Wait for the block select to be populated
     await page.waitForFunction(() => {
       const blockSelect = document.querySelector('select[name="block"]');
-      return blockSelect && blockSelect.options.length > 1;
+      return blockSelect && blockSelect.options.length > 0;
     });
 
     // Step 3: Get all block options
@@ -38,12 +39,26 @@ const main = async () => {
         }));
     });
 
+    const validBlock = blockOptions.filter(
+      (block) => block.value !== "Select Block"
+    );
+
+    console.log("find the valid @###@@#@#@##@", validBlock);
     // Step 4: Save the block options to the database
-    for (const block of blockOptions) {
-      await Block.findOrCreate({
-        where: { value: block.value },
-        defaults: { name: block.name, District_code: district.value },
-      });
+    for (const block of validBlock) {
+      await Block.upsert({
+        value: block.value, // Unique identifier for the record
+        name: block.name,
+        District_code: district.value,
+      })
+        .then(() => {
+          console.log(`Upserted block with value: ${block.value}`);
+        })
+        .catch((error) => {
+          console.log(
+            `Error upserting block with value ${block.value}: ${error.message}`
+          );
+        });
     }
 
     console.log(`Blocks for district ${district.name} saved successfully!`);
