@@ -1,5 +1,10 @@
-const District = require("../models").District;
-const Block = require("../models").Block;
+const db = require("../models");
+const District = db.District;
+const Block = db.Block;
+const Village = db.Village;
+const Survey = db.Survey;
+const OwnerName = db.OwnerName;
+
 const user = {};
 
 // Sample route
@@ -26,31 +31,86 @@ user.getDistrictData = async (req, res) => {
   }
 };
 
-user.saveDistricts = async (districts) => {
+user.getBlockData = async (req, res) => {
+  const { districtCode } = req.query;
+
+  console.log("find the district code ", districtCode);
+
   try {
-    for (const district of districts) {
-      await District.findOrCreate({
-        where: { value: district.value },
-        defaults: { name: district.name },
-      });
-    }
-    console.log("Districts saved successfully!");
+    const blocks = await Block.findAll({
+      where: { District_code: districtCode },
+    });
+    res.status(200).json({
+      status: "success",
+      blocks,
+    });
   } catch (error) {
-    console.error("Error saving districts: ", error);
+    console.error("Error fetching blocks:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve blocks.",
+    });
   }
 };
 
-user.saveBlock = async (block) => {
+user.getVillageData = async (req, res) => {
+  const { blockCode } = req.query;
+
   try {
-    for (const block of blocks) {
-      await Block.findOrCreate({
-        where: { value: blocks.value },
-        defaults: { name: blocks.name },
-      });
-    }
-    console.log("Districts saved successfully!");
+    const villages = await Village.findAll({
+      where: { Block_code: blockCode },
+    });
+    res.status(200).json({
+      status: "success",
+      villages,
+    });
   } catch (error) {
-    console.error("Error saving districts: ", error);
+    console.error("Error fetching blocks:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve blocks.",
+    });
+  }
+};
+
+user.getSurveyNo = async (req, res) => {
+  const { villageCode } = req.query;
+
+  try {
+    const survey_no = await Survey.findAll({
+      where: { Village_code: villageCode },
+      attributes: ["id", "survey_no"],
+    });
+    res.status(200).json({
+      status: "success",
+      survey_no,
+    });
+  } catch (error) {
+    console.error("Error fetching blocks:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve blocks.",
+    });
+  }
+};
+
+user.getOwnerName = async (req, res) => {
+  const { surveyId } = req.query;
+
+  try {
+    const owners = await OwnerName.findAll({
+      where: { survey_id: surveyId },
+    });
+    res.status(200).json({
+      status: "success",
+      owners,
+    });
+  } catch (error) {
+    console.error("Error fetching blocks:", error);
+    res.status(500).json({
+      status: "error",
+      message: "Failed to retrieve blocks.",
+    });
   }
 };
 
